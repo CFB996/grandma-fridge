@@ -1,8 +1,3 @@
-"""
-The four grandma voices. One source of truth, imported by both the evaluation
-script and the Flask app — never two copies.
-"""
-
 PROMPT_NAME = "avo-fridge-persona"
 
 REFUSAL = "Filho, isso não se come. Só te ajudo com o que está no frigorífico."
