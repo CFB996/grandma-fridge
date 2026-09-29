@@ -22,11 +22,12 @@ services:
       - .env
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-avo}
+      # JUPYTER_TOKEN commented to do not generate conflict with the command below.
+      # JUPYTER_TOKEN: ${JUPYTER_TOKEN:-avo}
     volumes:
       - ../notebooks:/home/jovyan/work
       - ../src:/home/jovyan/src
-    command: start-notebook.py --IdentityProvider.token=''
+    command: start-notebook.py --IdentityProvider.token='' --IdentityProvider.password=''
     depends_on:
       - mlflow
     restart: unless-stopped
