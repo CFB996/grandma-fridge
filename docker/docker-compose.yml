@@ -26,6 +26,7 @@ services:
     volumes:
       - ../notebooks:/home/jovyan/work
       - ../src:/home/jovyan/src
+    command: start-notebook.py --IdentityProvider.token=''
     depends_on:
       - mlflow
     restart: unless-stopped
