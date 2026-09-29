@@ -21,7 +21,7 @@ The project follows the same discipline as the course's own example: prompts are
 ## Quick start
 
 ```bash
-git clone https://github.com/ricardo-gama/grandma-fridge.git
+git clone https://github.com/<your-username>/grandma-fridge.git
 cd grandma-fridge
 
 cp docker/.env.example docker/.env
@@ -69,9 +69,19 @@ This file is imported by both the evaluation pipeline and the live API — the p
 
 ### 3. Evaluate and promote
 
-```bash
-docker compose -f docker/docker-compose.yml exec api python -m src.evaluate_personas
+Evaluation runs from [`notebooks/grandma_prototyping.ipynb`](notebooks/grandma_prototyping.ipynb) — open JupyterLab at http://localhost:8888/?token=avo, open that notebook, and run the evaluation cell:
+
+```python
+import sys
+sys.path.insert(0, "/home/jovyan/work")  # repo root as seen inside the jupyter container
+
+import src.evaluate_personas as ep
+
+sys.argv = ["evaluate_personas"]   # add "--promote" here once a persona clears the gate
+ep.main()
 ```
+
+This calls the same `main()` as the CLI would (`docker compose exec api python -m src.evaluate_personas`) — same scoring, same MLflow registration, same gate — the `sys.argv` override just keeps Jupyter's own kernel arguments from confusing argparse. Running it here means it uses the `jupyter` container's environment (`MLFLOW_TRACKING_URI`, `LLM_REQUESTS_PER_MINUTE`), and you get the results back as a Python object (`ep.main()`'s return value, or whatever `score_persona`/ranking variables the notebook exposes) to inspect or plot immediately, instead of only reading logs.
 
 Each persona is registered as a version of the prompt `avo-fridge-persona`, scored over every case, and rated on:
 
@@ -88,14 +98,26 @@ Compare personas in MLflow at http://localhost:5001.
 
 `refusal_accuracy` has a hard gate at 1.0. A persona that answers something it was told to refuse is **not promoted**, however well it scores elsewhere — a confident, on-brand, off-topic answer is worse than no answer.
 
-Once a persona clears the gate:
+Once a persona clears the gate, re-run the same cell with `--promote`:
+
+```python
+sys.argv = ["evaluate_personas", "--promote"]
+ep.main()
+```
+
+then reload the live app:
 
 ```bash
-docker compose -f docker/docker-compose.yml exec api python -m src.evaluate_personas --promote
 curl -X POST http://localhost:8000/persona/reload
 ```
 
 Avó now answers with the new champion — no rebuild, no redeploy.
+
+> Prefer the command line instead? The equivalent, run from the `api` container rather than `jupyter`, is:
+> ```bash
+> docker compose -f docker/docker-compose.yml exec api python -m src.evaluate_personas
+> docker compose -f docker/docker-compose.yml exec api python -m src.evaluate_personas --promote
+> ```
 
 ## Optional: local LLM fallback
 
@@ -125,7 +147,8 @@ grandma-fridge/
 │   ├── grandma_personas.py    # the four personas, shared by pipeline and service
 │   ├── evaluation_set.py      # the fixed bar
 │   └── evaluate_personas.py   # score, rank, gate, promote
-├── notebooks/                 # persona prototyping and evaluation, interactively
+├── notebooks/
+│   └── grandma_prototyping.ipynb  # persona prototyping AND evaluation — run it from here
 └── frontend/                  # Lovable frontend (WIP)
 ```
 
