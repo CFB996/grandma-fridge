@@ -7,7 +7,7 @@ import os
 from openai import OpenAI
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-DEFAULT_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash-lite")
+DEFAULT_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
 DEFAULT_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", 2000))
 
 
