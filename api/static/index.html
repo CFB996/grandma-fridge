@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avó's Fridge Rescue</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="bowl-icon">🍲</div>
+      <h1>Avó's Fridge Rescue</h1>
+      <p>Tell your Portuguese grandmother what's in the fridge — she'll make dinner out of it.</p>
+    </header>
+
+    <div id="healthBanner" class="health-banner hidden"></div>
+
+    <section class="personas-block">
+      <h2>Which Avó today?</h2>
+      <div class="personas" id="personas">
+        <button class="persona-card active" data-persona="affectionate">
+          <span class="persona-emoji">🤗</span>
+          <span class="persona-name">Affectionate</span>
+          <span class="persona-desc">Warm, encouraging, simple</span>
+        </button>
+        <button class="persona-card" data-persona="strict">
+          <span class="persona-emoji">🥄</span>
+          <span class="persona-name">Strict</span>
+          <span class="persona-desc">Judges first, then precise steps</span>
+        </button>
+        <button class="persona-card" data-persona="dramatic">
+          <span class="persona-emoji">🎭</span>
+          <span class="persona-name">Dramatic</span>
+          <span class="persona-desc">Telenovela energy</span>
+        </button>
+        <button class="persona-card" data-persona="practical">
+          <span class="persona-emoji">⏱️</span>
+          <span class="persona-name">Practical</span>
+          <span class="persona-desc">No chat, fastest recipe</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="input-area">
+      <h2>What's in your fridge?</h2>
+
+      <div class="quick-ideas">
+        <span class="quick-label">Quick ideas:</span>
+        <div class="chips" id="chips">
+          <button class="chip" data-fill="bacalhau, ovos, batata, cebola">🐟 Bacalhau & eggs</button>
+          <button class="chip" data-fill="frango, arroz, cenoura, alho">🍗 Chicken & rice</button>
+          <button class="chip" data-fill="massa, tomate, alho, manjericão">🍝 Pasta & tomato</button>
+          <button class="chip" data-fill="sobras de arroz, feijão, chouriço">🥘 Leftover odds & ends</button>
+        </div>
+      </div>
+
+      <textarea id="fridgeInput" maxlength="500" placeholder="ovos, bacalhau, batata, cebola, azeite"></textarea>
+      <div class="input-row">
+        <span id="charCount" class="char-count">0 / 500</span>
+        <button id="askButton">Ask Avó</button>
+      </div>
+      <div id="errorBanner" class="error-banner hidden"></div>
+    </section>
+
+    <section class="chat-log" id="chatLog"></section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

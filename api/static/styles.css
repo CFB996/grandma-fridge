@@ -1,0 +1,110 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #F7EEDF;
+  color: #241A12;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+.app { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 28px; }
+
+header { text-align: center; }
+.bowl-icon { font-size: 44px; margin-bottom: 8px; }
+header h1 { font-size: 42px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.5px; }
+header p {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 19px; color: #6B5A48; line-height: 1.4; max-width: 520px; margin: 0 auto;
+}
+
+.health-banner {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #E9DCC3; color: #241A12;
+  padding: 22px 28px; border-radius: 20px; text-align: center;
+  font-size: 18px; font-weight: 500;
+}
+.hidden { display: none; }
+
+.personas-block h2, .input-area h2 {
+  font-size: 26px; font-weight: 700; margin-bottom: 16px;
+}
+
+.personas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.persona-card {
+  background: #FDF8EF; border: 2px solid #E4D6BC; border-radius: 22px;
+  padding: 22px 24px; cursor: pointer; text-align: left;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.persona-card.active {
+  background: #B65A3A; border-color: #B65A3A; color: #FFF8EF;
+}
+.persona-emoji { font-size: 30px; }
+.persona-name { font-size: 22px; font-weight: 700; }
+.persona-desc { font-size: 16px; opacity: 0.85; }
+
+.input-area { display: flex; flex-direction: column; gap: 14px; }
+
+.quick-ideas { display: flex; flex-direction: column; gap: 10px; }
+.quick-label {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 15px; font-weight: 600; color: #6B5A48;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #FDF8EF; border: 2px solid #E4D6BC; color: #6B4630;
+  padding: 10px 16px; border-radius: 999px; font-size: 15px; font-weight: 600;
+  cursor: pointer;
+}
+.chip:hover { background: #F3E4CC; }
+
+textarea {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 18px; padding: 18px; border-radius: 18px; border: 2px solid #E4D6BC;
+  min-height: 110px; resize: vertical; background: #FDF8EF; color: #241A12;
+}
+textarea::placeholder { color: #A3927A; }
+
+.input-row {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  display: flex; justify-content: flex-end; align-items: center;
+}
+.char-count { font-size: 15px; color: #A3927A; }
+
+#askButton {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #C88566; color: white; border: none; padding: 20px 28px;
+  border-radius: 999px; font-size: 20px; font-weight: 700; cursor: pointer;
+  width: 100%;
+}
+#askButton:hover:not(:disabled) { background: #B4714F; }
+#askButton:disabled { background: #E4C6B2; cursor: not-allowed; }
+
+.error-banner {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #FBE4E1; color: #A6321A; padding: 14px 18px; border-radius: 14px; font-size: 16px;
+}
+
+.chat-log { display: flex; flex-direction: column; gap: 18px; }
+.turn { display: flex; flex-direction: column; gap: 8px; }
+.bubble-user {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  align-self: flex-end; background: #241A12; color: #F7EEDF;
+  padding: 14px 20px; border-radius: 18px; max-width: 85%; font-size: 16px;
+}
+.bubble-avo {
+  background: #FDF8EF; border: 1px solid #E4D6BC; padding: 20px 24px;
+  border-radius: 18px; font-size: 18px; line-height: 1.55; white-space: pre-wrap;
+}
+.bubble-meta {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 14px; color: #A3927A;
+}
+.thinking {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 17px; color: #A3927A; font-style: italic;
+}

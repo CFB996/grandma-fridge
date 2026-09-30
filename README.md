@@ -1,6 +1,6 @@
 # Avó's Fridge Rescue
 
-An LLMOps class project: tell Avó what's in your fridge, and she turns it into a recipe — in one of four grandma personas. Built with Docker, MLflow (experiment tracking, tracing, and a Prompt Registry), Gemini (with a local Ollama fallback), and a Flask API.
+An LLMOps class project: tell Avó what's in your fridge, and she turns it into a recipe — in one of four grandma personas. Built with Docker, MLflow (experiment tracking, tracing, and a Prompt Registry), Gemini (with a local Ollama fallback), and a Flask API that also serves its own frontend — the whole app is one container, reachable at `http://localhost:8000`, nothing external required.
 
 The project follows the same discipline as the course's own example: prompts are versioned like models, scored against a fixed test set, and only promoted to serve live traffic after clearing a quality gate.
 
@@ -10,7 +10,7 @@ The project follows the same discipline as the course's own example: prompts are
 | Where versions live | MLflow **Prompt Registry** |
 | How you compare them | a fixed **Evaluation Set** |
 | How you ship one | move the `@champion` alias |
-| What serves it | the Flask API |
+| What serves it | the Flask API, at `http://localhost:8000` — UI and API together |
 
 ## What you need
 
@@ -30,13 +30,15 @@ cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.yml up -d --build
 ```
 
+Open **http://localhost:8000** — that's the whole app: pick a persona, type or click a quick-idea suggestion, hit "Ask Avó."
+
 | Service | URL | What it is |
 |---|---|---|
-| Avó's API | http://localhost:8000 | The recipe service |
+| Avó's app | http://localhost:8000 | The frontend *and* the API — same container, same port |
 | MLflow | http://localhost:5001 | Experiments, traces, and the Prompt Registry |
 | JupyterLab | http://localhost:8888/?token=avo | Where personas are prototyped and evaluated |
 
-Try it:
+Or hit the API directly:
 
 ```bash
 curl -X POST http://localhost:8000/recipe \
@@ -119,6 +121,16 @@ Avó now answers with the new champion — no rebuild, no redeploy.
 > docker compose -f docker/docker-compose.yml exec api python -m src.evaluate_personas --promote
 > ```
 
+### 4. The frontend
+
+There's no separate frontend service. `api/fridge_app.py` serves the UI itself, as static files (`api/static/index.html`, `styles.css`, `app.js`), from the same Flask process that serves `/recipe`. That means:
+
+- One container, one port (`8000`) — frontend and API are same-origin, so there's no CORS to configure and nothing external (no tunnel, no separate hosting) needed to run the whole app locally.
+- The persona picker calls `/persona/switch`; the four quick-idea chips (bacalhau & eggs, chicken & rice, pasta & tomato, leftover odds & ends) are pulled straight from `evaluation_set.py`'s `ON_TOPIC` cases, so whatever a demo viewer clicks is something the evaluation pipeline has already scored.
+- Each response shows which persona and which provider (`gemini` or `ollama`) actually answered — useful for showing the fallback working live, not just in a metric.
+
+A design draft for this UI was first prototyped in Lovable; the shipped version here is a hand-built equivalent so the whole stack — UI included — runs as one Docker image rather than depending on Lovable's hosting or a tunnel. The `frontend/` folder from the original plan is retired in favor of this.
+
 ## Optional: local LLM fallback
 
 `src/llm_client.py` tries Gemini first and silently falls back to a local Ollama model on any error (rate limit, quota, network). This is off by default; to include it:
@@ -141,16 +153,29 @@ grandma-fridge/
 │   ├── init-mlflow.sh
 │   ├── requirements.txt       # pinned
 │   └── .env.example
-├── api/fridge_app.py          # Flask service, serves prompts:/avo-fridge-persona@champion
+├── api/
+│   ├── fridge_app.py           # Flask service — serves prompts:/avo-fridge-persona@champion AND the UI
+│   └── static/
+│       ├── index.html          # the frontend
+│       ├── styles.css
+│       └── app.js
 ├── src/
 │   ├── llm_client.py          # the only file that knows Gemini (+ Ollama fallback)
 │   ├── grandma_personas.py    # the four personas, shared by pipeline and service
 │   ├── evaluation_set.py      # the fixed bar
 │   └── evaluate_personas.py   # score, rank, gate, promote
-├── notebooks/
-│   └── grandma_prototyping.ipynb  # persona prototyping AND evaluation — run it from here
-└── frontend/                  # Lovable frontend (WIP)
+└── notebooks/
+    └── grandma_prototyping.ipynb  # persona prototyping AND evaluation — run it from here
 ```
+
+## Future work
+
+Scoped out for now, in rough priority order:
+
+- **An on-topic/off-topic classifier.** `evaluation_set.py`'s `ON_TOPIC`/`OFF_TOPIC` cases are already labeled — a small classifier trained on them could sit in front of the LLM call as a cheap pre-filter (obviously junk input gets refused without spending a Gemini call), and would register to MLflow's **Model Registry**, alongside the Prompt Registry already in use.
+- **A real Gemini-vs-Ollama comparison.** Today Ollama is only a fallback triggered on Gemini errors (`ollama_fallback_rate` counts *incidents*, not a controlled comparison). Running `score_persona()` once per provider, logged as separate MLflow runs, would show the actual quality/cost tradeoff.
+- **CI/CD** — a GitHub Actions workflow that builds the images and runs the evaluation gate on every push, failing the build if `refusal_accuracy` or `overall_score` don't clear the bar.
+- **A publicly reachable deployment** — today's setup (Docker Compose on one machine) is fully containerized and satisfies the course's "deploy in a container" requirement, but it depends on that machine staying on. Deploying `mlflow` + `api` together to a host like Railway or Render (same Dockerfiles, no rewrite) would make it reachable without a laptop running.
 
 ## Secrets
 
@@ -176,6 +201,10 @@ curl -s http://localhost:8000/health
 **`429 RESOURCE_EXHAUSTED` from Gemini** — you've hit the free tier's rate or daily quota limit. Either wait, lower `--rpm` on the evaluation script, or bring up the Ollama fallback (see above) — `llm_client.py` will use it automatically once available.
 
 **Docker Desktop won't start (Windows)** — usually a WSL2 issue. Try `wsl --update` then `wsl --shutdown`, then reopen Docker Desktop. If disk space is the blocker, run Disk Cleanup (`cleanmgr`) targeting Windows Update files first.
+
+**`avo-api` keeps restarting / `python: can't open file '/app/api/fridge_app.py'`** — `api/fridge_app.py` doesn't exist on your machine yet, or is incomplete (check with `wc -l api/fridge_app.py` — it should be a few hundred lines, ending cleanly with `app.run(...)`). Rebuild after fixing it: `docker compose -f docker/docker-compose.yml build --no-cache api && docker compose -f docker/docker-compose.yml up -d api`.
+
+**Want to share the running app with someone outside your machine?** Everything here is designed to run at `localhost:8000` with nothing external needed. If you do want it reachable from another device or over the internet temporarily (a remote demo, say), tunnel it: `ngrok http 8000`, then use the `https://....ngrok-free.app` URL it prints. That URL changes every time you restart the tunnel on the free tier — for anything longer-lived, see Future Work's deployment note above.
 
 **Start over**
 
