@@ -200,6 +200,8 @@ def make_recipe(fridge_items: str, session_id: str, turn: int) -> Dict[str, Any]
     One turn: render the persona's prompt with the fridge contents, ask the model,
     remember the answer, and tag the trace so it's readable in MLflow.
     """
+    load_champion_persona()
+    prompt = grandma_personas.render(current_persona["name"], fridge_items)
     history = get_history(session_id)
 
     formatted_prompt = current_persona['template'].replace('{{fridge_items}}', fridge_items)
@@ -305,12 +307,13 @@ def reload_persona_from_mlflow():
 
 @app.route('/persona/info', methods=['GET'])
 def persona_info_route():
-    return jsonify({
-        "current_persona": current_persona,
-        "available_personas": list(AVO_PERSONAS.keys()),
-        "persona_info": persona_info,
-        "timestamp": datetime.now().isoformat(),
-    })
+    return jsonify(persona_info)
+    # return jsonify({
+    #     "current_persona": current_persona,
+    #     "available_personas": list(AVO_PERSONAS.keys()),
+    #     "persona_info": persona_info,
+    #     "timestamp": datetime.now().isoformat(),
+    # })
 
 
 def initialize_app():

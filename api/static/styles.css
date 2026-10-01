@@ -32,6 +32,35 @@ header p {
   font-size: 26px; font-weight: 700; margin-bottom: 16px;
 }
 
+.champion-card {
+  background: #FFFFFF;
+  border: 1px solid #E9DCC3;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 16px 0 24px;
+}
+
+.champion-badge {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #B65A3A;
+  margin-bottom: 8px;
+}
+
+#champion-name {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  margin: 4px 0 8px;
+}
+
+#champion-description {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5C4A3D;
+}
+
 .personas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .persona-card {
   background: #FDF8EF; border: 2px solid #E4D6BC; border-radius: 22px;

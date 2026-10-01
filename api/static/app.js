@@ -1,4 +1,3 @@
-const personas = document.querySelectorAll('.persona-card');
 const chips = document.querySelectorAll('.chip');
 const fridgeInput = document.getElementById('fridgeInput');
 const charCount = document.getElementById('charCount');
@@ -6,9 +5,17 @@ const askButton = document.getElementById('askButton');
 const chatLog = document.getElementById('chatLog');
 const errorBanner = document.getElementById('errorBanner');
 const healthBanner = document.getElementById('healthBanner');
+const championName = document.getElementById('champion-name');
+const championDescription = document.getElementById('champion-description');
 
-let currentPersona = 'affectionate';
 const sessionId = 'session-' + Math.random().toString(16).slice(2, 14);
+
+const PERSONA_DESCRIPTIONS = {
+  affectionate: 'Warm, simple and encouraging',
+  strict: 'Judges your fridge, then precise steps',
+  dramatic: 'Telenovela energy in every step',
+  practical: 'Just the recipe as fast as possible',
+};
 
 function updateCharCount() {
   charCount.textContent = `${fridgeInput.value.length} / 500`;
@@ -23,18 +30,21 @@ chips.forEach(chip => {
   });
 });
 
-personas.forEach(card => {
-  card.addEventListener('click', async () => {
-    personas.forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    currentPersona = card.dataset.persona;
-    await fetch('/persona/switch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ persona: currentPersona }),
-    });
-  });
-});
+function renderChampion(info) {
+  const name = info && info.persona;
+  if (!name) {
+    championName.textContent = 'Avó';
+    championDescription.textContent = '';
+    return;
+  }
+  championName.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+  championDescription.textContent = PERSONA_DESCRIPTIONS[name] || '';
+}
+
+fetch('/persona/info')
+  .then(r => r.json())
+  .then(renderChampion)
+  .catch(() => renderChampion(null));
 
 function showError(message) {
   errorBanner.textContent = message;
